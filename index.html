@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#f7f4ee" />
   <title>행운연구소 — 로또 번호 추첨기</title>
   <meta name="description" content="제외 번호와 게임 수를 설정하고 나만의 행운 번호를 뽑아보세요." />
+  <script>
+    (()=>{const saved=localStorage.getItem('lucky-lab-theme');const theme=saved||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=theme;document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#141613':'#f7f4ee'})();
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
     :root { --ink:#1d211c; --muted:#73766f; --paper:#f7f4ee; --card:rgba(255,255,255,.76); --line:#d9d6cd; --lime:#c9ff3d; --purple:#7557ff; --shadow:0 18px 60px rgba(44,40,32,.09); }
@@ -19,7 +22,11 @@
     header { height:78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
     .brand { display:flex; align-items:center; gap:11px; font-weight:900; letter-spacing:-.05em; }
     .brand-mark { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--ink); color:var(--lime); font-size:18px; }
+    .header-actions { display:flex; align-items:center; gap:9px; }
     .badge { padding:7px 12px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font:500 11px "DM Mono",monospace; letter-spacing:.1em; background:rgba(255,255,255,.45); }
+    .theme-toggle { min-width:92px; height:36px; display:flex; align-items:center; justify-content:center; gap:7px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.6); font-size:12px; font-weight:700; cursor:pointer; transition:background .2s,border-color .2s,transform .2s; }
+    .theme-toggle:hover { border-color:var(--purple); transform:translateY(-1px); }
+    .theme-icon { font-size:15px; line-height:1; }
     main { padding:58px 0 72px; }
     .eyebrow { display:flex; align-items:center; gap:10px; color:var(--purple); font:500 12px "DM Mono",monospace; letter-spacing:.16em; text-transform:uppercase; }
     .eyebrow::before { content:""; width:30px; height:2px; background:var(--purple); }
@@ -75,15 +82,31 @@
     .toast { position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px); padding:12px 18px; background:var(--ink); color:white; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:.25s; z-index:20; }
     .toast.show { opacity:1; transform:translate(-50%,0); }
     footer { display:flex; justify-content:space-between; gap:20px; padding:28px 0 40px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; }
+    html[data-theme="dark"] { color-scheme:dark; --ink:#f1f3eb; --muted:#a5aa9f; --paper:#141613; --card:rgba(31,34,29,.82); --line:#3c4038; --lime:#c9ff3d; --purple:#9a84ff; --shadow:0 18px 60px rgba(0,0,0,.28); }
+    html[data-theme="dark"] body { background:radial-gradient(circle at 8% 8%,rgba(201,255,61,.09),transparent 24rem),radial-gradient(circle at 90% 28%,rgba(117,87,255,.12),transparent 25rem),var(--paper); }
+    html[data-theme="dark"] .panel { border-color:rgba(60,64,56,.9); }
+    html[data-theme="dark"] .badge,html[data-theme="dark"] .theme-toggle { background:rgba(38,42,35,.78); }
+    html[data-theme="dark"] .brand-mark { background:var(--lime); color:#171a15; }
+    html[data-theme="dark"] .machine::before { color:rgba(255,255,255,.035); }
+    html[data-theme="dark"] .status { color:#c9e58d; }
+    html[data-theme="dark"] .empty { color:#858a80; }
+    html[data-theme="dark"] .empty-icon { border-color:#555a50; }
+    html[data-theme="dark"] .draw-btn { background:var(--lime); color:#171a15; box-shadow:0 8px 0 #7b9d22; }
+    html[data-theme="dark"] .draw-btn:hover { box-shadow:0 10px 0 #7b9d22; }
+    html[data-theme="dark"] .draw-btn:active { box-shadow:0 3px 0 #7b9d22; }
+    html[data-theme="dark"] .icon-btn,html[data-theme="dark"] .segmented button,html[data-theme="dark"] .exclude-wrap input,html[data-theme="dark"] .chip,html[data-theme="dark"] .saved-item { background:#242720; }
+    html[data-theme="dark"] .segmented button.active { background:var(--purple); }
+    html[data-theme="dark"] .note { background:#242720; }
+    html[data-theme="dark"] .toast { background:#f1f3eb; color:#171a15; }
     @keyframes pop { from { opacity:0; transform:translateY(16px) scale(.7) rotate(-12deg); } to { opacity:1; transform:none; } } @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
-    @media (max-width:780px) { .wrap { width:min(100% - 24px,600px); } header { height:66px; } main { padding-top:38px; } .lab { grid-template-columns:1fr; margin-top:32px; } .machine { min-height:430px; padding:25px 20px; } .machine-head { align-items:center; } .game { gap:8px; } .game-label { width:30px; flex-basis:30px; } .balls { flex-wrap:nowrap; gap:5px; } .ball { width:calc((100vw - 99px)/6); height:calc((100vw - 99px)/6); max-width:50px; max-height:50px; } .controls { padding:24px 20px; } footer { flex-direction:column; } }
+    @media (max-width:780px) { .wrap { width:min(100% - 24px,600px); } header { height:66px; } .badge { display:none; } .theme-toggle { min-width:82px; height:34px; } main { padding-top:38px; } .lab { grid-template-columns:1fr; margin-top:32px; } .machine { min-height:430px; padding:25px 20px; } .machine-head { align-items:center; } .game { gap:8px; } .game-label { width:30px; flex-basis:30px; } .balls { flex-wrap:nowrap; gap:5px; } .ball { width:calc((100vw - 99px)/6); height:calc((100vw - 99px)/6); max-width:50px; max-height:50px; } .controls { padding:24px 20px; } footer { flex-direction:column; } }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
   <div class="wrap">
-    <header><div class="brand"><span class="brand-mark">✦</span> 행운연구소</div><div class="badge">LOTTO 6/45</div></header>
+    <header><div class="brand"><span class="brand-mark">✦</span> 행운연구소</div><div class="header-actions"><div class="badge">LOTTO 6/45</div><button class="theme-toggle" id="themeToggle" type="button" aria-label="다크 모드로 전환" aria-pressed="false"><span class="theme-icon" aria-hidden="true">◐</span><span id="themeLabel">다크 모드</span></button></div></header>
     <main>
       <div class="eyebrow">Lucky number generator</div>
       <h1>오늘의 <span class="marker">행운 번호</span>를<br />실험해 보세요.</h1>
@@ -111,6 +134,8 @@
   <script>
     const state={gameCount:5,excluded:new Set(),results:[],saved:JSON.parse(localStorage.getItem('lucky-lab-saved')||'[]')};
     const $=selector=>document.querySelector(selector),resultList=$('#resultList'),drawBtn=$('#drawBtn');
+    function updateThemeControl(){const dark=document.documentElement.dataset.theme==='dark';$('#themeLabel').textContent=dark?'화이트 모드':'다크 모드';$('#themeToggle').setAttribute('aria-label',dark?'화이트 모드로 전환':'다크 모드로 전환');$('#themeToggle').setAttribute('aria-pressed',String(dark))}
+    function toggleTheme(){const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('lucky-lab-theme',next);document.querySelector('meta[name="theme-color"]').content=next==='dark'?'#141613':'#f7f4ee';updateThemeControl();showToast(next==='dark'?'다크 모드로 전환했어요.':'화이트 모드로 전환했어요.')}
     function secureRandom(max){const ceiling=Math.floor(0x100000000/max)*max,array=new Uint32Array(1);do{crypto.getRandomValues(array)}while(array[0]>=ceiling);return array[0]%max}
     function drawGame(){const pool=Array.from({length:45},(_,i)=>i+1).filter(n=>!state.excluded.has(n));for(let i=pool.length-1;i>0;i--){const j=secureRandom(i+1);[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,6).sort((a,b)=>a-b)}
     function colorOf(n){if(n<=10)return'yellow';if(n<=20)return'blue';if(n<=30)return'red';if(n<=40)return'gray';return'green'}
@@ -120,6 +145,7 @@
     function addExcluded(){const input=$('#excludeInput'),value=Number(input.value);if(!Number.isInteger(value)||value<1||value>45)return showToast('1부터 45 사이의 숫자를 입력해 주세요.');if(state.excluded.has(value))return showToast('이미 제외한 번호예요.');if(state.excluded.size>=10)return showToast('제외 번호는 최대 10개까지 가능해요.');state.excluded.add(value);input.value='';renderExcluded();input.focus()}
     function renderExcluded(){const chips=$('#excludeChips');$('#excludeCount').textContent=state.excluded.size;if(!state.excluded.size){chips.innerHTML='<span class="no-chip">선택한 제외 번호가 없어요</span>';return}chips.innerHTML=[...state.excluded].sort((a,b)=>a-b).map(n=>`<button class="chip" type="button" data-number="${n}" aria-label="제외 번호 ${n} 삭제">${n} ×</button>`).join('')}
     function renderSaved(){const panel=$('#savedPanel');panel.classList.toggle('show',state.saved.length>0);$('#savedItems').innerHTML=state.saved.map(item=>`<div class="saved-item"><span class="saved-nums">${item.numbers.join(' · ')}</span><span class="saved-time">${item.date}</span></div>`).join('')}
+    $('#themeToggle').addEventListener('click',toggleTheme);updateThemeControl();
     drawBtn.addEventListener('click',runDraw);
     $('#gameSelector').addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;state.gameCount=Number(button.dataset.count);document.querySelectorAll('#gameSelector button').forEach(btn=>btn.classList.toggle('active',btn===button))});
     $('#addExclude').addEventListener('click',addExcluded);$('#excludeInput').addEventListener('keydown',e=>{if(e.key==='Enter')addExcluded()});
