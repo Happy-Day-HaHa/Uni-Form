@@ -4,26 +4,14 @@ import LottoResult from '../components/LottoResult.jsx'
 import GenerateButton from '../components/GenerateButton.jsx'
 import { generateLotto } from '../utils/generateLotto.js'
 
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xnpalwow'
-
-function readSavedNumbers() {
-  try {
-    return JSON.parse(localStorage.getItem('lucky-lab-saved') || '[]')
-  } catch {
-    return []
-  }
-}
-
 export default function Home() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
   const [gameCount, setGameCount] = useState(5)
   const [excluded, setExcluded] = useState(new Set())
   const [excludeInput, setExcludeInput] = useState('')
   const [results, setResults] = useState([])
-  const [saved, setSaved] = useState(readSavedNumbers)
   const [isDrawing, setIsDrawing] = useState(false)
   const [toast, setToast] = useState('')
-  const [formState, setFormState] = useState({ type: '', message: '' })
   const toastTimer = useRef(null)
   const drawTimer = useRef(null)
 
@@ -68,50 +56,6 @@ export default function Home() {
     setExcluded(next)
   }
 
-  async function copyResults() {
-    if (!results.length) return showToast('먼저 번호를 추첨해 주세요.')
-    const text = results.map((game, index) => `${String.fromCharCode(65 + index)}. ${game.join(', ')}`).join('\n')
-    try {
-      await navigator.clipboard.writeText(text)
-      showToast('번호를 복사했어요!')
-    } catch {
-      showToast('복사할 수 없어요. 다시 시도해 주세요.')
-    }
-  }
-
-  function saveResults() {
-    if (!results.length) return showToast('먼저 번호를 추첨해 주세요.')
-    const date = new Intl.DateTimeFormat('ko-KR', { month: 'numeric', day: 'numeric' }).format(new Date())
-    const next = [...results.map((numbers) => ({ numbers, date })), ...saved].slice(0, 12)
-    setSaved(next)
-    localStorage.setItem('lucky-lab-saved', JSON.stringify(next))
-    showToast('행운 번호를 저장했어요!')
-  }
-
-  function clearSaved() {
-    setSaved([])
-    localStorage.removeItem('lucky-lab-saved')
-    showToast('저장한 번호를 모두 지웠어요.')
-  }
-
-  async function submitInquiry(event) {
-    event.preventDefault()
-    const form = event.currentTarget
-    setFormState({ type: 'loading', message: '' })
-    try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { Accept: 'application/json' },
-      })
-      if (!response.ok) throw new Error('Form submission failed')
-      form.reset()
-      setFormState({ type: 'success', message: '문의가 정상적으로 접수됐어요. 확인 후 빠르게 연락드리겠습니다.' })
-    } catch {
-      setFormState({ type: 'error', message: '전송하지 못했어요. 잠시 후 다시 시도해 주세요.' })
-    }
-  }
-
   const sortedExcluded = [...excluded].sort((a, b) => a - b)
 
   return (
@@ -123,24 +67,19 @@ export default function Home() {
         <main>
           <section className="hero" aria-labelledby="heroTitle">
             <div className="hero-copy">
-              <div className="eyebrow">LOTTO 6/45 · RANDOM LAB</div>
-              <h1 id="heroTitle">행운의 숫자를<br />새롭게 발견하세요.</h1>
-              <p className="intro">복잡한 예측 대신 명확하고 공정한 추첨.<br />원하는 게임 수를 고르고 한 번에 번호를 만들어보세요.</p>
+              <div className="eyebrow">오늘도, 가볍게 한 게임</div>
+              <h1 id="heroTitle">번호는 우리가.<br />설렘은 당신이.</h1>
+              <p className="intro">1부터 45까지. 생각은 짧게,<br />번호는 빠르고 공정하게.</p>
               <div className="hero-actions">
                 <a className="primary-cta" href="#draw">번호 뽑기 <span aria-hidden="true">↗</span></a>
-                <a className="secondary-cta" href="#how">어떻게 작동하나요?</a>
+                <a className="secondary-cta" href="#how">왜 공정한가요?</a>
               </div>
             </div>
             <div className="hero-visual" aria-label="로또 번호 생성기 미리보기">
-              <div className="product-render">
-                <div className="render-label">LUCKY<br />DRAW</div>
-                <div className="render-balls" aria-hidden="true">
-                  <span>07</span><span>18</span><span>26</span>
-                  <span>31</span><span>39</span><span>44</span>
-                </div>
-                <div className="render-line"><span />LIVE RANDOM</div>
-              </div>
-              <p>Browser-powered random number system</p>
+              <span className="visual-sticker">100% RANDOM</span>
+              <img className="ticket-image" src="/images/lotto-ticket-editorial.jpg" alt="손으로 번호를 표시한 로또 용지 스타일의 그래픽" />
+              <div className="visual-burst" aria-hidden="true">✦</div>
+              <p>오늘의 번호를 기록하고, 가볍게 즐겨보세요.</p>
             </div>
           </section>
 
@@ -156,21 +95,8 @@ export default function Home() {
                 </div>
                 <div className="machine-footer">
                   <GenerateButton isDrawing={isDrawing} hasResults={results.length > 0} onClick={runDraw} />
-                  <button className="icon-btn" type="button" onClick={copyResults} aria-label="결과 복사" title="결과 복사">⧉</button>
-                  <button className="icon-btn" type="button" onClick={saveResults} aria-label="결과 저장" title="결과 저장">♡</button>
                 </div>
               </div>
-
-              {saved.length > 0 && (
-                <section className="panel saved" aria-label="저장한 번호">
-                  <div className="saved-head"><h3>저장한 행운 번호</h3><button className="clear-btn" type="button" onClick={clearSaved}>전체 지우기</button></div>
-                  <div className="saved-items">
-                    {saved.map((item, index) => (
-                      <div className="saved-item" key={`${item.numbers.join('-')}-${index}`}><span className="saved-nums">{item.numbers.join(' · ')}</span><span className="saved-time">{item.date}</span></div>
-                    ))}
-                  </div>
-                </section>
-              )}
             </div>
 
             <aside className="panel controls">
@@ -195,26 +121,6 @@ export default function Home() {
             </aside>
           </section>
 
-          <section className="panel partner" id="partnership" aria-labelledby="partnerTitle">
-            <div className="partner-copy">
-              <div className="section-label">Partnership</div>
-              <h2 id="partnerTitle">좋은 제안은<br />언제나 환영해요.</h2>
-              <p className="partner-description">브랜드 협업, 광고, 콘텐츠 제휴 등<br />함께 만들고 싶은 이야기를 들려주세요.</p>
-              <div className="partner-tag">보통 1–2일 안에 답변드려요</div>
-            </div>
-            <form className="inquiry-form" action={FORMSPREE_ENDPOINT} method="POST" onSubmit={submitInquiry}>
-              <input type="hidden" name="_subject" value="[행운연구소] 새로운 제휴 문의" />
-              <div className="honeypot" aria-hidden="true"><label htmlFor="website">웹사이트</label><input id="website" type="text" name="_gotcha" tabIndex="-1" autoComplete="off" /></div>
-              <div className="field"><label htmlFor="inquiryName">이름 <span className="required">*</span></label><input id="inquiryName" name="name" type="text" autoComplete="name" placeholder="홍길동" required /></div>
-              <div className="field"><label htmlFor="inquiryEmail">이메일 <span className="required">*</span></label><input id="inquiryEmail" name="email" type="email" autoComplete="email" placeholder="hello@example.com" required /></div>
-              <div className="field"><label htmlFor="inquiryCompany">회사·브랜드</label><input id="inquiryCompany" name="company" type="text" autoComplete="organization" placeholder="선택 입력" /></div>
-              <div className="field"><label htmlFor="inquiryType">문의 유형 <span className="required">*</span></label><select id="inquiryType" name="inquiry_type" defaultValue="" required><option value="" disabled>선택해 주세요</option><option>브랜드 협업</option><option>광고 문의</option><option>콘텐츠 제휴</option><option>기타</option></select></div>
-              <div className="field full"><label htmlFor="inquiryMessage">문의 내용 <span className="required">*</span></label><textarea id="inquiryMessage" name="message" placeholder="제안 내용과 예상 일정 등을 자유롭게 적어주세요." required /></div>
-              <label className="privacy"><input name="privacy_consent" type="checkbox" value="동의" required /><span>문의 답변을 위해 이름과 이메일을 수집·이용하는 데 동의합니다. 제출 정보는 문의 응대 목적으로만 사용됩니다.</span></label>
-              <button className="form-submit" type="submit" disabled={formState.type === 'loading'}>{formState.type === 'loading' ? '문의 보내는 중...' : '제휴 문의 보내기 →'}</button>
-              {formState.message && <p className={`form-status ${formState.type}`} role="status" aria-live="polite">{formState.message}</p>}
-            </form>
-          </section>
         </main>
 
         <footer><span>© 2026 행운연구소</span><span>재미를 위한 번호 생성 도구이며 당첨을 보장하지 않습니다.</span></footer>

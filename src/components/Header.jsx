@@ -7,9 +7,8 @@ export default function Header({ theme, onToggleTheme }) {
         행운연구소<span className="brand-dot">.</span>
       </a>
       <nav className="site-nav" aria-label="주요 메뉴">
-        <a href="#draw">번호 추첨</a>
-        <a href="#how">이용 방법</a>
-        <a href="#partnership">제휴 문의</a>
+        <a href="#draw">번호 뽑기</a>
+        <a href="#how">작동 원리</a>
       </nav>
       <div className="header-actions">
         <button
