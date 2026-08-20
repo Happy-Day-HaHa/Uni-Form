@@ -45,6 +45,9 @@ h2 { margin:6px 0 0; font-size:clamp(23px,2.6vw,34px); letter-spacing:-.055em; }
 .game-label { width:28px; flex:0 0 28px; color:var(--muted); font:800 10px "DM Mono",monospace; }
 .balls { display:flex; flex-wrap:wrap; gap:clamp(6px,1vw,10px); }
 .ball { width:clamp(40px,4.5vw,54px); height:clamp(40px,4.5vw,54px); display:grid; place-items:center; border:2px solid var(--ink); border-radius:50%; color:#fff; font:800 clamp(13px,1.6vw,17px) "DM Mono",monospace; box-shadow:3px 3px 0 var(--ink); animation:pop .35s cubic-bezier(.2,.85,.35,1.35) both; }
+.bonus-plus { align-self:center; margin:0 2px; color:var(--muted); font:900 clamp(20px,2.4vw,30px)/1 "Inter",sans-serif; }
+.bonus-ball { display:inline-flex; border-radius:50%; }
+.bonus-ball .ball { outline:3px solid var(--paper); outline-offset:2px; }
 .yellow { background:#e7b229; } .blue { background:#2589ce; } .red { background:#ef5c52; } .gray { background:#727779; } .green { background:#42a363; }
 
 .quick-controls { display:grid; grid-template-columns:240px minmax(220px,1fr); gap:10px; padding-top:18px; border-top:2px solid var(--ink); }
@@ -98,7 +101,8 @@ footer { display:flex; justify-content:space-between; gap:20px; padding:25px cla
   .game { gap:7px; }
   .game-label { width:24px; flex-basis:24px; }
   .balls { flex-wrap:nowrap; gap:4px; }
-  .ball { width:calc((100vw - 83px)/6); height:calc((100vw - 83px)/6); max-width:48px; max-height:48px; }
+  .ball { width:clamp(30px,calc((100vw - 116px)/7),48px); height:clamp(30px,calc((100vw - 116px)/7),48px); }
+  .bonus-plus { margin:0; font-size:18px; }
   .hero-visual { min-height:610px; border-top:2px solid var(--ink); border-left:0; }
   .ticket-image { width:min(350px,82%); max-height:550px; }
   footer { flex-direction:column; }

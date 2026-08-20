@@ -10,12 +10,16 @@ export default function LottoResult({ results, isDrawing }) {
   }
 
   return results.map((game, gameIndex) => (
-    <div className="game" key={`${gameIndex}-${game.join('-')}`}>
+    <div className="game" key={`${gameIndex}-${game.numbers.join('-')}-${game.bonus}`}>
       <span className="game-label">{String.fromCharCode(65 + gameIndex)}</span>
       <div className="balls">
-        {game.map((number, index) => (
+        {game.numbers.map((number, index) => (
           <LottoBall key={number} number={number} delay={(gameIndex * 70) + (index * 45)} />
         ))}
+        <span className="bonus-plus" aria-hidden="true">+</span>
+        <span className="bonus-ball" aria-label={`보너스 번호 ${game.bonus}`}>
+          <LottoBall number={game.bonus} delay={(gameIndex * 70) + 270} />
+        </span>
       </div>
     </div>
   ))

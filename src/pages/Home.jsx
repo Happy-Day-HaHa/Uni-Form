@@ -68,7 +68,7 @@ export default function Home() {
 
               <div className="panel machine" aria-label="로또 번호 추첨기">
                 <div className="machine-head">
-                  <div><div className="section-label">YOUR NUMBERS</div><h2>{isDrawing ? '섞는 중.' : results.length ? '이 번호로.' : '준비됐어요.'}</h2></div>
+                  <div><div className="section-label">6 NUMBERS + BONUS</div><h2>{isDrawing ? '섞는 중.' : results.length ? '이 번호로.' : '준비됐어요.'}</h2></div>
                   <div className="status">{isDrawing ? 'PICKING' : results.length ? 'DONE' : 'READY'}</div>
                 </div>
                 <div className="result-list" aria-live="polite">

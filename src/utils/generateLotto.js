@@ -18,7 +18,10 @@ export function generateLotto(excluded = new Set()) {
     ;[pool[index], pool[target]] = [pool[target], pool[index]]
   }
 
-  return pool.slice(0, 6).sort((a, b) => a - b)
+  return {
+    numbers: pool.slice(0, 6).sort((a, b) => a - b),
+    bonus: pool[6],
+  }
 }
 
 export function getBallColor(number) {
