@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f4ee" />
+  <title>행운연구소 — 로또 번호 추첨기</title>
+  <meta name="description" content="제외 번호와 게임 수를 설정하고 나만의 행운 번호를 뽑아보세요." />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
+    :root { --ink:#1d211c; --muted:#73766f; --paper:#f7f4ee; --card:rgba(255,255,255,.76); --line:#d9d6cd; --lime:#c9ff3d; --purple:#7557ff; --shadow:0 18px 60px rgba(44,40,32,.09); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:radial-gradient(circle at 8% 8%,rgba(201,255,61,.19),transparent 24rem),radial-gradient(circle at 90% 28%,rgba(117,87,255,.1),transparent 25rem),var(--paper); font-family:"Noto Sans KR",sans-serif; }
+    button,input { font:inherit; } button { color:inherit; }
+    button:focus-visible,input:focus-visible { outline:3px solid rgba(117,87,255,.35); outline-offset:3px; }
+    .noise { position:fixed; inset:0; pointer-events:none; opacity:.25; z-index:10; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E"); }
+    .wrap { width:min(1180px,calc(100% - 40px)); margin:0 auto; }
+    header { height:78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:900; letter-spacing:-.05em; }
+    .brand-mark { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--ink); color:var(--lime); font-size:18px; }
+    .badge { padding:7px 12px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font:500 11px "DM Mono",monospace; letter-spacing:.1em; background:rgba(255,255,255,.45); }
+    main { padding:58px 0 72px; }
+    .eyebrow { display:flex; align-items:center; gap:10px; color:var(--purple); font:500 12px "DM Mono",monospace; letter-spacing:.16em; text-transform:uppercase; }
+    .eyebrow::before { content:""; width:30px; height:2px; background:var(--purple); }
+    h1 { max-width:740px; margin:18px 0 14px; font-size:clamp(42px,7vw,80px); line-height:1.04; letter-spacing:-.065em; }
+    h1 .marker { position:relative; white-space:nowrap; z-index:0; }
+    h1 .marker::after { content:""; position:absolute; z-index:-1; left:-3px; right:-8px; bottom:.06em; height:.26em; background:var(--lime); transform:rotate(-1deg); }
+    .intro { color:var(--muted); font-size:16px; line-height:1.8; margin:0; }
+    .lab { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr); gap:20px; margin-top:46px; align-items:start; }
+    .panel { background:var(--card); border:1px solid rgba(217,214,205,.85); border-radius:28px; box-shadow:var(--shadow); backdrop-filter:blur(14px); }
+    .machine { padding:clamp(24px,4vw,44px); min-height:440px; position:relative; overflow:hidden; }
+    .machine::before { content:"LUCKY DRAW"; position:absolute; top:22px; right:-20px; color:rgba(29,33,28,.035); font:900 76px "DM Mono",monospace; transform:rotate(5deg); white-space:nowrap; }
+    .machine-head { position:relative; display:flex; justify-content:space-between; gap:20px; align-items:flex-start; }
+    .section-label { font:500 11px "DM Mono",monospace; color:var(--muted); letter-spacing:.13em; text-transform:uppercase; }
+    h2 { margin:8px 0 0; font-size:clamp(23px,3vw,34px); letter-spacing:-.045em; }
+    .status { display:flex; align-items:center; gap:8px; color:#566538; font-size:12px; font-weight:700; }
+    .status::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--lime); box-shadow:0 0 0 5px rgba(201,255,61,.2); }
+    .result-list { position:relative; min-height:190px; display:flex; flex-direction:column; justify-content:center; gap:15px; padding:28px 0 20px; }
+    .empty { text-align:center; color:#a5a69f; }
+    .empty-icon { width:72px; height:72px; margin:0 auto 15px; border:1px dashed #c4c3bc; border-radius:50%; display:grid; place-items:center; font-size:27px; }
+    .empty p { margin:0; font-size:14px; }
+    .game { display:flex; align-items:center; gap:18px; animation:rise .45s ease both; }
+    .game-label { width:38px; flex:0 0 38px; color:var(--muted); font:500 11px "DM Mono",monospace; }
+    .balls { display:flex; gap:clamp(6px,1vw,12px); flex-wrap:wrap; }
+    .ball { width:clamp(42px,6vw,58px); height:clamp(42px,6vw,58px); border-radius:50%; display:grid; place-items:center; font:700 clamp(15px,2vw,19px) "DM Mono",monospace; color:white; box-shadow:inset 0 -7px 12px rgba(0,0,0,.12),0 6px 12px rgba(0,0,0,.1); animation:pop .38s cubic-bezier(.2,.85,.35,1.35) both; }
+    .yellow { background:#e9b62e; } .blue { background:#338ac7; } .red { background:#ef5c52; } .gray { background:#7f8586; } .green { background:#48a56a; }
+    .machine-footer { display:flex; align-items:center; gap:12px; margin-top:8px; }
+    .draw-btn { flex:1; min-height:60px; border:0; border-radius:16px; background:var(--ink); color:white; font-weight:800; font-size:16px; cursor:pointer; transition:transform .2s,box-shadow .2s; box-shadow:0 8px 0 #080a08; }
+    .draw-btn:hover { transform:translateY(-2px); box-shadow:0 10px 0 #080a08; } .draw-btn:active { transform:translateY(5px); box-shadow:0 3px 0 #080a08; } .draw-btn:disabled { opacity:.65; cursor:wait; }
+    .icon-btn { width:60px; height:60px; border:1px solid var(--line); border-radius:16px; background:white; cursor:pointer; font-size:20px; transition:.2s; }
+    .icon-btn:hover { background:var(--lime); border-color:var(--lime); }
+    .controls { padding:28px; }
+    .control-group + .control-group { margin-top:27px; padding-top:25px; border-top:1px solid var(--line); }
+    .control-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; font-size:14px; font-weight:800; }
+    .hint { color:var(--muted); font-size:11px; font-weight:500; }
+    .segmented { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .segmented button { padding:11px 8px; border:1px solid var(--line); border-radius:11px; background:white; cursor:pointer; font-size:13px; font-weight:700; }
+    .segmented button.active { background:var(--purple); color:white; border-color:var(--purple); }
+    .exclude-wrap { display:flex; gap:8px; }
+    .exclude-wrap input { min-width:0; width:100%; height:46px; border:1px solid var(--line); border-radius:11px; background:white; padding:0 13px; font-size:13px; }
+    .exclude-wrap button { border:0; border-radius:11px; background:var(--lime); padding:0 15px; font-weight:800; cursor:pointer; }
+    .chips { display:flex; flex-wrap:wrap; gap:7px; min-height:29px; margin-top:11px; }
+    .chip { border:1px solid var(--line); border-radius:999px; padding:5px 8px 5px 10px; background:white; font:500 11px "DM Mono",monospace; cursor:pointer; }
+    .no-chip { color:#9a9b95; font-size:11px; align-self:center; }
+    .note { display:flex; gap:10px; margin-top:27px; padding:15px; border-radius:13px; background:#f0ede6; color:var(--muted); font-size:11px; line-height:1.6; }
+    .note strong { color:var(--ink); }
+    .saved { margin-top:20px; padding:26px 30px; display:none; }
+    .saved.show { display:block; animation:rise .35s ease; }
+    .saved-head { display:flex; justify-content:space-between; align-items:center; } .saved-head h3 { margin:0; font-size:16px; }
+    .clear-btn { border:0; background:none; color:var(--muted); font-size:12px; cursor:pointer; text-decoration:underline; }
+    .saved-items { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; margin-top:16px; }
+    .saved-item { display:flex; justify-content:space-between; align-items:center; border:1px solid var(--line); border-radius:13px; padding:13px 15px; background:white; }
+    .saved-nums { font:500 12px "DM Mono",monospace; letter-spacing:.04em; } .saved-time { color:var(--muted); font-size:10px; }
+    .toast { position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px); padding:12px 18px; background:var(--ink); color:white; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:.25s; z-index:20; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    footer { display:flex; justify-content:space-between; gap:20px; padding:28px 0 40px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; }
+    @keyframes pop { from { opacity:0; transform:translateY(16px) scale(.7) rotate(-12deg); } to { opacity:1; transform:none; } } @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    @media (max-width:780px) { .wrap { width:min(100% - 24px,600px); } header { height:66px; } main { padding-top:38px; } .lab { grid-template-columns:1fr; margin-top:32px; } .machine { min-height:430px; padding:25px 20px; } .machine-head { align-items:center; } .game { gap:8px; } .game-label { width:30px; flex-basis:30px; } .balls { flex-wrap:nowrap; gap:5px; } .ball { width:calc((100vw - 99px)/6); height:calc((100vw - 99px)/6); max-width:50px; max-height:50px; } .controls { padding:24px 20px; } footer { flex-direction:column; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="wrap">
+    <header><div class="brand"><span class="brand-mark">✦</span> 행운연구소</div><div class="badge">LOTTO 6/45</div></header>
+    <main>
+      <div class="eyebrow">Lucky number generator</div>
+      <h1>오늘의 <span class="marker">행운 번호</span>를<br />실험해 보세요.</h1>
+      <p class="intro">1부터 45까지, 같은 숫자 없이 공정하게.<br />가볍게 뽑고 기분 좋게 도전하세요.</p>
+      <section class="lab" aria-label="로또 번호 추첨기">
+        <div>
+          <div class="panel machine">
+            <div class="machine-head"><div><div class="section-label">Draw result</div><h2 id="resultTitle">준비 완료!</h2></div><div class="status" id="status">추첨 대기</div></div>
+            <div class="result-list" id="resultList" aria-live="polite"><div class="empty"><div class="empty-icon">✦</div><p>버튼을 누르면 행운 번호가 나타나요</p></div></div>
+            <div class="machine-footer"><button class="draw-btn" id="drawBtn" type="button">행운 번호 추첨하기</button><button class="icon-btn" id="copyBtn" type="button" aria-label="결과 복사" title="결과 복사">⧉</button><button class="icon-btn" id="saveBtn" type="button" aria-label="결과 저장" title="결과 저장">♡</button></div>
+          </div>
+          <section class="panel saved" id="savedPanel" aria-label="저장한 번호"><div class="saved-head"><h3>저장한 행운 번호</h3><button class="clear-btn" id="clearBtn" type="button">전체 지우기</button></div><div class="saved-items" id="savedItems"></div></section>
+        </div>
+        <aside class="panel controls">
+          <div class="section-label">Draw settings</div>
+          <div class="control-group"><div class="control-title"><span>게임 수</span><span class="hint">한 번에 추첨</span></div><div class="segmented" id="gameSelector"><button type="button" data-count="1">1게임</button><button type="button" data-count="3">3게임</button><button type="button" data-count="5" class="active">5게임</button></div></div>
+          <div class="control-group"><div class="control-title"><span>제외 번호</span><span class="hint"><span id="excludeCount">0</span>/10</span></div><div class="exclude-wrap"><input id="excludeInput" type="number" min="1" max="45" inputmode="numeric" placeholder="1–45 숫자 입력" aria-label="제외할 번호" /><button id="addExclude" type="button">추가</button></div><div class="chips" id="excludeChips"><span class="no-chip">선택한 제외 번호가 없어요</span></div></div>
+          <div class="note"><span>◉</span><span><strong>알고 계셨나요?</strong><br />모든 조합의 당첨 확률은 동일해요. 이 추첨기는 브라우저의 난수로 번호를 선택합니다.</span></div>
+        </aside>
+      </section>
+    </main>
+    <footer><span>© 2026 행운연구소</span><span>재미를 위한 번호 생성 도구이며 당첨을 보장하지 않습니다.</span></footer>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    const state={gameCount:5,excluded:new Set(),results:[],saved:JSON.parse(localStorage.getItem('lucky-lab-saved')||'[]')};
+    const $=selector=>document.querySelector(selector),resultList=$('#resultList'),drawBtn=$('#drawBtn');
+    function secureRandom(max){const ceiling=Math.floor(0x100000000/max)*max,array=new Uint32Array(1);do{crypto.getRandomValues(array)}while(array[0]>=ceiling);return array[0]%max}
+    function drawGame(){const pool=Array.from({length:45},(_,i)=>i+1).filter(n=>!state.excluded.has(n));for(let i=pool.length-1;i>0;i--){const j=secureRandom(i+1);[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,6).sort((a,b)=>a-b)}
+    function colorOf(n){if(n<=10)return'yellow';if(n<=20)return'blue';if(n<=30)return'red';if(n<=40)return'gray';return'green'}
+    function renderResults(){resultList.innerHTML=state.results.map((game,gameIndex)=>`<div class="game"><span class="game-label">${String.fromCharCode(65+gameIndex)}</span><div class="balls">${game.map((n,i)=>`<span class="ball ${colorOf(n)}" style="animation-delay:${gameIndex*70+i*45}ms">${n}</span>`).join('')}</div></div>`).join('')}
+    function runDraw(){drawBtn.disabled=true;drawBtn.textContent='번호를 섞는 중...';$('#status').textContent='추첨 중';$('#resultTitle').textContent='두근두근...';resultList.innerHTML='<div class="empty"><div class="empty-icon">⌁</div><p>행운의 숫자를 고르고 있어요</p></div>';setTimeout(()=>{state.results=Array.from({length:state.gameCount},drawGame);renderResults();$('#resultTitle').textContent='행운 번호가 나왔어요!';$('#status').textContent='추첨 완료';drawBtn.disabled=false;drawBtn.textContent='다시 추첨하기'},650)}
+    function showToast(message){const toast=$('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),1800)}
+    function addExcluded(){const input=$('#excludeInput'),value=Number(input.value);if(!Number.isInteger(value)||value<1||value>45)return showToast('1부터 45 사이의 숫자를 입력해 주세요.');if(state.excluded.has(value))return showToast('이미 제외한 번호예요.');if(state.excluded.size>=10)return showToast('제외 번호는 최대 10개까지 가능해요.');state.excluded.add(value);input.value='';renderExcluded();input.focus()}
+    function renderExcluded(){const chips=$('#excludeChips');$('#excludeCount').textContent=state.excluded.size;if(!state.excluded.size){chips.innerHTML='<span class="no-chip">선택한 제외 번호가 없어요</span>';return}chips.innerHTML=[...state.excluded].sort((a,b)=>a-b).map(n=>`<button class="chip" type="button" data-number="${n}" aria-label="제외 번호 ${n} 삭제">${n} ×</button>`).join('')}
+    function renderSaved(){const panel=$('#savedPanel');panel.classList.toggle('show',state.saved.length>0);$('#savedItems').innerHTML=state.saved.map(item=>`<div class="saved-item"><span class="saved-nums">${item.numbers.join(' · ')}</span><span class="saved-time">${item.date}</span></div>`).join('')}
+    drawBtn.addEventListener('click',runDraw);
+    $('#gameSelector').addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;state.gameCount=Number(button.dataset.count);document.querySelectorAll('#gameSelector button').forEach(btn=>btn.classList.toggle('active',btn===button))});
+    $('#addExclude').addEventListener('click',addExcluded);$('#excludeInput').addEventListener('keydown',e=>{if(e.key==='Enter')addExcluded()});
+    $('#excludeChips').addEventListener('click',e=>{const chip=e.target.closest('.chip');if(!chip)return;state.excluded.delete(Number(chip.dataset.number));renderExcluded()});
+    $('#copyBtn').addEventListener('click',async()=>{if(!state.results.length)return showToast('먼저 번호를 추첨해 주세요.');const text=state.results.map((game,i)=>`${String.fromCharCode(65+i)}. ${game.join(', ')}`).join('\n');try{await navigator.clipboard.writeText(text);showToast('번호를 복사했어요!')}catch{showToast('복사할 수 없어요. 다시 시도해 주세요.')}});
+    $('#saveBtn').addEventListener('click',()=>{if(!state.results.length)return showToast('먼저 번호를 추첨해 주세요.');const date=new Intl.DateTimeFormat('ko-KR',{month:'numeric',day:'numeric'}).format(new Date()),additions=state.results.map(numbers=>({numbers,date}));state.saved=[...additions,...state.saved].slice(0,12);localStorage.setItem('lucky-lab-saved',JSON.stringify(state.saved));renderSaved();showToast('행운 번호를 저장했어요!')});
+    $('#clearBtn').addEventListener('click',()=>{state.saved=[];localStorage.removeItem('lucky-lab-saved');renderSaved();showToast('저장한 번호를 모두 지웠어요.')});renderSaved();
+  </script>
+</body>
+</html>
