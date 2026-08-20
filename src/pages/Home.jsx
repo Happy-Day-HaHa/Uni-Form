@@ -117,15 +117,34 @@ export default function Home() {
   return (
     <>
       <div className="noise" aria-hidden="true" />
-      <div className="wrap">
+      <div className="wrap" id="top">
         <Header theme={theme} onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
 
         <main>
-          <div className="eyebrow">Lucky number generator</div>
-          <h1>오늘의 <span className="marker">행운 번호</span>를<br />실험해 보세요.</h1>
-          <p className="intro">1부터 45까지, 같은 숫자 없이 공정하게.<br />가볍게 뽑고 기분 좋게 도전하세요.</p>
+          <section className="hero" aria-labelledby="heroTitle">
+            <div className="hero-copy">
+              <div className="eyebrow">LOTTO 6/45 · RANDOM LAB</div>
+              <h1 id="heroTitle">행운의 숫자를<br />새롭게 발견하세요.</h1>
+              <p className="intro">복잡한 예측 대신 명확하고 공정한 추첨.<br />원하는 게임 수를 고르고 한 번에 번호를 만들어보세요.</p>
+              <div className="hero-actions">
+                <a className="primary-cta" href="#draw">번호 뽑기 <span aria-hidden="true">↗</span></a>
+                <a className="secondary-cta" href="#how">어떻게 작동하나요?</a>
+              </div>
+            </div>
+            <div className="hero-visual" aria-label="로또 번호 생성기 미리보기">
+              <div className="product-render">
+                <div className="render-label">LUCKY<br />DRAW</div>
+                <div className="render-balls" aria-hidden="true">
+                  <span>07</span><span>18</span><span>26</span>
+                  <span>31</span><span>39</span><span>44</span>
+                </div>
+                <div className="render-line"><span />LIVE RANDOM</div>
+              </div>
+              <p>Browser-powered random number system</p>
+            </div>
+          </section>
 
-          <section className="lab" aria-label="로또 번호 추첨기">
+          <section className="lab" id="draw" aria-label="로또 번호 추첨기">
             <div>
               <div className="panel machine">
                 <div className="machine-head">
@@ -172,7 +191,7 @@ export default function Home() {
                   {sortedExcluded.length ? sortedExcluded.map((number) => <button className="chip" type="button" key={number} onClick={() => removeExcluded(number)} aria-label={`제외 번호 ${number} 삭제`}>{number} ×</button>) : <span className="no-chip">선택한 제외 번호가 없어요</span>}
                 </div>
               </div>
-              <div className="note"><span>◉</span><span><strong>알고 계셨나요?</strong><br />모든 조합의 당첨 확률은 동일해요. 이 추첨기는 브라우저의 난수로 번호를 선택합니다.</span></div>
+              <div className="note" id="how"><span>◉</span><span><strong>어떻게 작동하나요?</strong><br />모든 조합의 당첨 확률은 동일하며, 브라우저의 암호학적 난수로 번호를 선택합니다.</span></div>
             </aside>
           </section>
 

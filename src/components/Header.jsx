@@ -3,9 +3,15 @@ export default function Header({ theme, onToggleTheme }) {
 
   return (
     <header className="site-header">
-      <div className="brand"><span className="brand-mark">✦</span> 행운연구소</div>
+      <a className="brand" href="#top" aria-label="행운연구소 홈">
+        행운연구소<span className="brand-dot">.</span>
+      </a>
+      <nav className="site-nav" aria-label="주요 메뉴">
+        <a href="#draw">번호 추첨</a>
+        <a href="#how">이용 방법</a>
+        <a href="#partnership">제휴 문의</a>
+      </nav>
       <div className="header-actions">
-        <div className="badge">LOTTO 6/45</div>
         <button
           className="theme-toggle"
           type="button"
@@ -14,8 +20,9 @@ export default function Header({ theme, onToggleTheme }) {
           aria-pressed={isDark}
         >
           <span className="theme-icon" aria-hidden="true">◐</span>
-          <span>{isDark ? '화이트 모드' : '다크 모드'}</span>
+          <span>{isDark ? 'Light' : 'Dark'}</span>
         </button>
+        <a className="header-cta" href="#draw">번호 뽑기</a>
       </div>
     </header>
   )
